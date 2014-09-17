@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: default
 title: Private field injection into parent classes!
 ---
 
