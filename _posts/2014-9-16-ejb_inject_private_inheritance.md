@@ -3,7 +3,7 @@ layout: default
 title: Private field injection into parent classes!
 ---
 
-Munka közben felmerült egy érdekes kérdés, amire nem találtam azonnal egyértelmű választ az EJB specifikációban (és a fejemben). 
+Munka közben felmerült egy érdekes kérdés, amire nem találtam azonnal egyértelmű választ az EJB specifikációban (és a fejemben).
 
 
 Legyen `Parent` egy sima osztály, és `Child` `Parent` egy gyermekosztálya. `Parent`-en nincs semmilyen annotáció, viszont `Child` egy Session Bean.
@@ -11,7 +11,7 @@ Legyen `Parent` egy sima osztály, és `Child` `Parent` egy gyermekosztálya. `P
 - Működik-e a field injection a Parent osztályban `private` field esetén? Míg a protected verzióra a válasz magától értetődőnek tűnik, addig a `private` már egyáltalán nem triviális.
 - Ha működnek, miért? A specifikáció mely részei utalnak a problémára?
 
-**A teszt**
+###A teszt
 
 A `Child` osztály egy `@Singleton` lesz, amely szülőjébe beinjektálok egy producer által előállított számot. A `Child` egyszerűen kiírja az előállított számot.
 
@@ -32,7 +32,7 @@ public class Parent {
 	}
 }
 ```
-Ez lesz a `Parent` osztályunk. Egy sima osztály egy `private` és egy `protected` injektált fielddel. 
+Ez lesz a `Parent` osztályunk. Egy sima osztály egy `private` és egy `protected` injektált fielddel.
 Az injektáláshoz a következő osztályt használjuk, ami egy `Producer` metódust ajánl ki `int` típushoz.
 ```java
 @Singleton
@@ -69,23 +69,24 @@ value of private field: 3
 value of protected field: 4
 ```
 
-**EJB specifikáció**
+### EJB specifikáció
+Végül következzen a megfelelő rész a specifikációból, ami feketén-fehéren megmagyarázza a fentieket:
 
-*** 4.9.2. Session Bean Class***
-> The session bean class may have superclasses and/or superinterfaces. If the session bean has superclasses, 
-- the business methods, 
-- lifecycle callback interceptor methods, 
+#### 4.9.2.1 Session Bean Superclasses
+
+> A session bean class is permitted to have superclasses that are themselves session bean classes. However, there are no special rules that apply to the processing of annotations or the deployment descriptor
+for this case.
+For the purposes of processing a particular session bean class, **all superclass processing is identical regardless of whether the superclasses are themselves session bean classes**. In this regard, the
+use of session bean classes as superclasses merely represents a convenient use of implementation inheritance, but does not have component inheritance semantics.
+
+#### 4.9.2. Session Bean Class
+Nem tartozik szorosan a blogbejegyzéshez, de a alábbi részlet is érdekes lehet:
+> The session bean class may have superclasses and/or superinterfaces. If the session bean has superclasses,
+- the business methods,
+- lifecycle callback interceptor methods,
 - the timeout callback methods,
 - the methods implementing the optional session synchronization notifications,
 - the `Init` or `ejbCreate<Method>` methods,
-- the `Remove` methods, 
+- the `Remove` methods,
 - and the methods of the `SessionBean` interface,
 may be defined in the session bean class, or in any of its superclasses.
-
-***4.9.2.1 Session Bean Superclasses***
-
-> A session bean class is permitted to have superclasses that are themselves session bean classes. However, there are no special rules that apply to the processing of annotations or the deployment descriptor 
-for this case. 
-For the purposes of processing a particular session bean class, **all superclass processing is identical regardless of whether the superclasses are themselves session bean classes**. In this regard, the 
-use of session bean classes as superclasses merely represents a convenient use of implementation inheritance, but does not have component inheritancesemantics.
-
